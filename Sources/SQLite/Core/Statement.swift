@@ -183,7 +183,7 @@ public final class Statement {
     }
 
     public func step() throws -> Bool {
-        return try connection.sync { try self.connection.check(sqlite3_step(self.handle)) == SQLITE_ROW }
+        return try self.connection.check(sqlite3_step(self.handle)) == SQLITE_ROW
     }
 
     fileprivate func reset(clearBindings shouldClear: Bool = true) {

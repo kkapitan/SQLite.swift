@@ -161,7 +161,7 @@ public final class Connection {
     ///
     /// - Throws: `Result.Error` if query execution fails.
     public func execute(_ SQL: String) throws {
-        _ = try sync { try self.check(sqlite3_exec(self.handle, SQL, nil, nil, nil)) }
+        _ = try self.check(sqlite3_exec(self.handle, SQL, nil, nil, nil))
     }
 
     // MARK: - Prepare
@@ -358,15 +358,13 @@ public final class Connection {
     }
 
     fileprivate func transaction(_ begin: String, _ block: () throws -> Void, _ commit: String, or rollback: String) throws {
-        return try sync {
-            try self.run(begin)
-            do {
-                try block()
-                try self.run(commit)
-            } catch {
-                try self.run(rollback)
-                throw error
-            }
+        try self.run(begin)
+        do {
+            try block()
+            try self.run(commit)
+        } catch {
+            try self.run(rollback)
+            throw error
         }
     }
 
@@ -656,14 +654,6 @@ public final class Connection {
     }
     
     // MARK: - Error Handling
-
-    func sync<T>(_ block: () throws -> T) rethrows -> T {
-        if DispatchQueue.getSpecific(key: Connection.queueKey) == queueContext {
-            return try block()
-        } else {
-            return try queue.sync(execute: block)
-        }
-    }
 
     @discardableResult func check(_ resultCode: Int32, statement: Statement? = nil) throws -> Int32 {
         guard let error = Result(errorCode: resultCode, connection: self, statement: statement) else {

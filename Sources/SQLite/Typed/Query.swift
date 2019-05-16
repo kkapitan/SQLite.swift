@@ -1017,10 +1017,9 @@ extension Connection {
     /// - Returns: The insert’s rowid.
     @discardableResult public func run(_ query: Insert) throws -> Int64 {
         let expression = query.expression
-        return try sync {
-            try self.run(expression.template, expression.bindings)
-            return self.lastInsertRowid
-        }
+        
+        try self.run(expression.template, expression.bindings)
+        return self.lastInsertRowid
     }
 
     /// Runs an `Update` query.
@@ -1033,10 +1032,9 @@ extension Connection {
     /// - Returns: The number of updated rows.
     @discardableResult public func run(_ query: Update) throws -> Int {
         let expression = query.expression
-        return try sync {
-            try self.run(expression.template, expression.bindings)
-            return self.changes
-        }
+        
+        try self.run(expression.template, expression.bindings)
+        return self.changes
     }
 
     /// Runs a `Delete` query.
@@ -1048,10 +1046,8 @@ extension Connection {
     /// - Returns: The number of deleted rows.
     @discardableResult public func run(_ query: Delete) throws -> Int {
         let expression = query.expression
-        return try sync {
-            try self.run(expression.template, expression.bindings)
-            return self.changes
-        }
+        try self.run(expression.template, expression.bindings)
+        return self.changes
     }
 
 }
